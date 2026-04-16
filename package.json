@@ -1,0 +1,9 @@
+{
+  "name": "confirm-edit-extension",
+  "dependencies": {
+    "diff": "^5.2.0"
+  },
+  "pi": {
+    "extensions": ["./confirm-edit.ts"]
+  }
+}
