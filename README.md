@@ -12,21 +12,8 @@ A [pi](https://github.com/mariozechner/pi-coding-agent) extension that prompts f
 
 ## Installation
 
-1. Copy `confirm-edit.ts` to your pi extensions directory
-2. Add to your `package.json`:
-
-```json
-{
-  "pi": {
-    "extensions": ["./confirm-edit.ts"]
-  }
-}
-```
-
-3. Install the dependency:
-
 ```bash
-npm install diff
+pi install git:github.com/kexul/confirm-edit
 ```
 
 ## Usage
