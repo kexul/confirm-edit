@@ -3,6 +3,9 @@
  *
  * Prompts for confirmation before applying edit tool calls.
  * Options: Accept (this edit), Always (all edits in session), Esc (reject)
+ *
+ * Commands:
+ * - /confirm-edit: Toggle or set always-accept mode
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
@@ -14,6 +17,33 @@ export default function (pi: ExtensionAPI) {
 	// Reset state on session start
 	pi.on("session_start", async () => {
 		alwaysAccept = false;
+	});
+
+	// Register command to toggle/set always-accept mode
+	pi.registerCommand("confirm-edit", {
+		description: "Toggle or set always-accept mode for edits",
+		handler: async (args, ctx) => {
+			if (args === "on" || args === "always") {
+				alwaysAccept = true;
+				ctx.ui.notify("Always-accept mode: ON (all edits will be applied automatically)", "success");
+			} else if (args === "off" || args === "ask") {
+				alwaysAccept = false;
+				ctx.ui.notify("Always-accept mode: OFF (each edit requires confirmation)", "info");
+			} else {
+				// No args: toggle or show current status
+				const choice = await ctx.ui.select(
+					`Always-accept mode is currently: ${alwaysAccept ? "ON" : "OFF"}`,
+					["Turn ON", "Turn OFF", "Cancel"],
+				);
+				if (choice === "Turn ON") {
+					alwaysAccept = true;
+					ctx.ui.notify("Always-accept mode: ON", "success");
+				} else if (choice === "Turn OFF") {
+					alwaysAccept = false;
+					ctx.ui.notify("Always-accept mode: OFF", "info");
+				}
+			}
+		},
 	});
 
 	pi.on("tool_call", async (event, ctx) => {
@@ -32,11 +62,14 @@ export default function (pi: ExtensionAPI) {
 			return undefined;
 		}
 
-		// Show confirmation dialog
-		const choice = await ctx.ui.select("Apply?", ["Accept", "Always"]);
+		// Show confirmation dialog with status hint
+		const choice = await ctx.ui.select(
+			"Apply edit?",
+			["Accept", "Always", "Reject"],
+		);
 
-		if (!choice) {
-			// Esc pressed - abort
+		if (!choice || choice === "Reject") {
+			// Esc pressed or Reject selected - abort
 			ctx.abort();
 			return { block: true, reason: "User cancelled" };
 		}
