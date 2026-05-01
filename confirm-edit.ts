@@ -11,12 +11,12 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 
-let alwaysAccept = false;
+let alwaysAccept = true;
 
 export default function (pi: ExtensionAPI) {
 	// Reset state on session start
 	pi.on("session_start", async () => {
-		alwaysAccept = false;
+		alwaysAccept = true;
 	});
 
 	// Register command to toggle/set always-accept mode
